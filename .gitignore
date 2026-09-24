@@ -1,0 +1,19 @@
+# OPC Java 脚手架 .gitignore
+target/
+*.class
+*.log
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# 环境配置（含密钥，不入库）
+.env
+application-local.yml
+
+# 临时
+*.tmp
