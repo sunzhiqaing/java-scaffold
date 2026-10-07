@@ -6,12 +6,53 @@ spring:
     name: java-scaffold
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/scaffold?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    url: jdbc:mysql://localhost:3306/scaffold?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: ${DB_PASSWORD:root123}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 3000ms
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: ${RABBIT_PASSWORD}
+    virtual-host: /
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="jmt4>-[LTvIN0wkY~#qE";'
+    consumer:
+      group-id: scaffold-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="jmt4>-[LTvIN0wkY~#qE";'
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: scaffold-producer-group
+    access-key: admin123
+    secret-key: 3wjmuj_cG1qo1SqsJvQV
+  consumer:
+    access-key: admin123
+    secret-key: 3wjmuj_cG1qo1SqsJvQV
 
 mybatis-plus:
   configuration:
@@ -26,6 +67,16 @@ mybatis-plus:
 knife4j:
   enable: true
 
+# 应用级配置（鉴权）
+app:
+  auth:
+    username: admin            # 内置登录账号（生产改为数据库校验）
+    password: admin123
+    jwt-secret: opc-scaffold-jwt-secret-2026-0123456789abcdef   # 生产必须更换
+    jwt-expire-hours: 24
+
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
   level:
     com.opc.scaffold: info

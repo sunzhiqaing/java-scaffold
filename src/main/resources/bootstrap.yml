@@ -1,0 +1,19 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      username: nacos
+      password: ${NACOS_PASSWORD}
+      discovery:
+        namespace: public
+      config:
+        namespace: public
+        group: DEFAULT_GROUP
+        file-extension: properties
+        import-check:
+          enabled: false
+        # 加载自定义 dataId（需带扩展名才会按 properties 解析），支持动态刷新
+        extension-configs:
+          - dataId: scaffold.config.properties
+            group: DEFAULT_GROUP
+            refresh: true
