@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPC Java 脚手架 · 门户</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #0f1b3d 0%, #1b2a5c 50%, #0e5a8a 100%);
+    min-height: 100vh; color: #e8edf7;
+    font-size: 17px; line-height: 1.7;
+  }
+  a { color: #7cc0ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* 顶栏 */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px; background: rgba(10,20,50,0.6); backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  .logo { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg,#38bdf8,#6366f1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:#fff; }
+  .lang-switch { display: flex; gap: 8px; }
+  .lang-switch button {
+    background: transparent; color: #c8d3f5; border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 14px; border-radius: 18px; cursor: pointer; font-size: 14px;
+  }
+  .lang-switch button.active { background: #38bdf8; color: #061a33; border-color: #38bdf8; font-weight: 600; }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 24px 64px; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 40px; }
+  .hero h1 { font-size: 46px; font-weight: 800; letter-spacing: 1px; margin-bottom: 14px;
+    background: linear-gradient(90deg,#7cc0ff,#a5b4fc,#5eead4); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 20px; color: #aeb9dc; }
+
+  /* 登录卡片 */
+  .card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px; padding: 28px 32px; backdrop-filter: blur(4px);
+  }
+  .login-card { max-width: 460px; margin: 0 auto 40px; text-align: center; }
+  .login-card h2 { font-size: 24px; margin-bottom: 22px; }
+  .field { text-align: left; margin-bottom: 16px; }
+  .field label { display: block; font-size: 15px; color: #b8c4e6; margin-bottom: 6px; }
+  .field input {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08); color: #fff; font-size: 17px; outline: none;
+  }
+  .field input:focus { border-color: #38bdf8; }
+  .btn {
+    width: 100%; padding: 13px; border: none; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(90deg,#38bdf8,#6366f1); color: #fff; font-size: 17px; font-weight: 700;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .hint { margin-top: 12px; font-size: 14px; color: #90a0c9; }
+  .status-msg { margin-top: 12px; font-size: 15px; color: #fca5a5; min-height: 20px; }
+
+  /* 仪表盘 */
+  #dashboard { display: none; }
+  .section-title { font-size: 22px; font-weight: 700; margin: 36px 0 18px; display:flex; align-items:center; gap:10px; }
+  .badge { font-size: 13px; background: #16a34a; color:#fff; padding: 2px 10px; border-radius: 12px; font-weight:600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 18px; }
+  .module {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 20px; transition: transform .15s, background .15s; cursor: pointer;
+  }
+  .module:hover { transform: translateY(-3px); background: rgba(255,255,255,0.09); }
+  .module .m-icon { font-size: 30px; margin-bottom: 10px; }
+  .module h3 { font-size: 18px; margin-bottom: 6px; }
+  .module p { font-size: 14px; color: #aeb9dc; }
+  .svc { display:flex; justify-content: space-between; background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px 20px; margin-bottom:12px; align-items:center; }
+  .svc .s-name { font-weight: 600; font-size: 16px; }
+  .svc .s-val { font-size: 15px; color:#aeb9dc; }
+  .up { color:#4ade80; font-weight:700; }
+  .down { color:#f87171; font-weight:700; }
+  .footer { text-align:center; margin-top: 48px; font-size: 14px; color: #7c8ab8; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="logo">J</div><span id="appName">OPC Java 脚手架</span></div>
+  <div class="lang-switch">
+    <button id="langZh" onclick="switchLang('zh_CN')">中文</button>
+    <button id="langEn" onclick="switchLang('en_US')">EN</button>
+    <button id="langJa" onclick="switchLang('ja_JP')">日本語</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- Hero -->
+  <div class="hero">
+    <h1 id="heroTitle">OPC Java 脚手架</h1>
+    <p id="heroSub">一人公司 · 生产级后端开发底座</p>
+  </div>
+
+  <!-- 登录 -->
+  <div id="loginBox" class="card login-card">
+    <h2 id="loginTitle">门户登录</h2>
+    <div class="field"><label id="lblUser" for="username">用户名</label>
+      <input id="username" value="admin" autocomplete="off"></div>
+    <div class="field"><label id="lblPass" for="password">密码</label>
+      <input id="password" type="password" value="admin123"></div>
+    <button class="btn" id="btnLogin" onclick="doLogin()">登 录</button>
+    <div class="status-msg" id="loginMsg"></div>
+    <div class="hint" id="loginHint">演示账号 admin / admin123 · 生产环境请改为数据库校验</div>
+  </div>
+
+  <!-- 仪表盘 -->
+  <div id="dashboard">
+    <div class="section-title"><span id="svcTitle">服务状态</span><span class="badge" id="svcBadge">● UP</span></div>
+    <div class="svc"><span class="s-name">Service</span><span class="s-val" id="svcName">java-scaffold</span></div>
+    <div class="svc"><span class="s-name">端口</span><span class="s-val">8080</span></div>
+    <div class="svc"><span class="s-name">当前语言</span><span class="s-val" id="svcLang">zh-CN</span></div>
+
+    <div class="section-title" id="modTitle">能力模块</div>
+    <div class="grid" id="modGrid"></div>
+
+    <div class="section-title" id="linkTitle">快捷入口</div>
+    <div class="svc" onclick="window.open('/doc.html','_blank')" style="cursor:pointer;">
+      <span class="s-name">📘 接口文档（Knife4j）</span><span class="s-val">打开 →</span></div>
+    <div class="svc" onclick="window.open('/api/i18n/demo','_blank')" style="cursor:pointer;">
+      <span class="s-name">🌐 国际化演示</span><span class="s-val">打开 →</span></div>
+  </div>
+
+  <div class="footer">OPC Java Scaffold · SpringBoot 3.2 · Powered by 豆包</div>
+</div>
+
+<script>
+var token = null;
+var dict = {
+  zh_CN: { app:'OPC Java 脚手架', heroSub:'一人公司 · 生产级后端开发底座', loginTitle:'门户登录', user:'用户名', pass:'密码', login:'登 录', hint:'演示账号 admin / admin123 · 生产环境请改为数据库校验', svcTitle:'服务状态', modTitle:'能力模块', linkTitle:'快捷入口' },
+  en_US: { app:'OPC Java Scaffold', heroSub:'One-Person Company · Production Backend Base', loginTitle:'Portal Login', user:'Username', pass:'Password', login:'Sign In', hint:'Demo admin / admin123 · use DB auth in production', svcTitle:'Service Status', modTitle:'Modules', linkTitle:'Quick Links' },
+  ja_JP: { app:'OPC Java スキャフォールド', heroSub:'一人企業 · 本番向けバックエンド基盤', loginTitle:'ポータルログイン', user:'ユーザー名', pass:'パスワード', login:'ログイン', hint:'デモ admin / admin123 · 本番はDB認証に', svcTitle:'サービス状態', modTitle:'モジュール', linkTitle:'ショートカット' }
+};
+var curLang = 'zh_CN';
+function T(k){ return (dict[curLang]&&dict[curLang][k]) ? dict[curLang][k] : dict['zh_CN'][k]; }
+function applyLang(){
+  document.getElementById('appName').textContent = T('app');
+  document.getElementById('heroTitle').textContent = T('app');
+  document.getElementById('heroSub').textContent = T('heroSub');
+  document.getElementById('loginTitle').textContent = T('loginTitle');
+  document.getElementById('lblUser').textContent = T('user');
+  document.getElementById('lblPass').textContent = T('pass');
+  document.getElementById('btnLogin').textContent = T('login');
+  document.getElementById('loginHint').textContent = T('hint');
+  document.getElementById('svcTitle').textContent = T('svcTitle');
+  document.getElementById('modTitle').textContent = T('modTitle');
+  document.getElementById('linkTitle').textContent = T('linkTitle');
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.classList.remove('active'));
+  var active = curLang==='zh_CN' ? 'langZh' : curLang==='en_US' ? 'langEn' : 'langJa';
+  document.getElementById(active).classList.add('active');
+}
+function switchLang(lang){ curLang = lang; applyLang(); fetch('/api/i18n/locale?lang='+lang,{method:'POST'}).then(()=>{ document.getElementById('svcLang').textContent = lang; }).catch(()=>{}); }
+
+function doLogin(){
+  fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:document.getElementById('username').value,password:document.getElementById('password').value})})
+    .then(r=>r.json()).then(res=>{
+      if(res.code===200){ token = res.data.token; document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('dashboard').style.display='block'; loadDashboard(); }
+      else { document.getElementById('loginMsg').textContent = res.message || '登录失败'; }
+    }).catch(()=>{ document.getElementById('loginMsg').textContent='请求失败'; });
+}
+function loadDashboard(){
+  // 加载当前语言
+  fetch('/api/i18n/current').then(r=>r.json()).then(res=>{ if(res&&res.data) document.getElementById('svcLang').textContent = res.data.language; }).catch(()=>{});
+  // 服务状态
+  fetch('/api/health').then(r=>r.json()).then(res=>{ if(res&&res.data){ document.getElementById('svcName').textContent = res.data.service; } }).catch(()=>{ document.getElementById('svcBadge').textContent='● DOWN'; });
+  // 能力模块
+  var mods = [
+    {icon:'🔐', name:'认证 / JWT', desc:'登录签发 token · 接口鉴权'},
+    {icon:'🗄️', name:'MySQL', desc:'数据库 · MyBatis-Plus'},
+    {icon:'⚡', name:'Redis', desc:'缓存 · 6 个演示接口'},
+    {icon:'🐇', name:'RabbitMQ', desc:'消息队列 · 演示接口'},
+    {icon:'📨', name:'Kafka', desc:'消息队列 · 演示接口'},
+    {icon:'🚀', name:'RocketMQ', desc:'消息队列 · 演示接口'},
+    {icon:'🧭', name:'Nacos', desc:'配置中心 / 注册中心'},
+    {icon:'🌐', name:'国际化 i18n', desc:'中英日 · 自动检测'},
+    {icon:'📚', name:'接口文档', desc:'Knife4j · 一键直达'},
+    {icon:'🧩', name:'代码生成器', desc:'MyBatis-Plus Generator'}
+  ];
+  var grid = document.getElementById('modGrid');
+  grid.innerHTML = mods.map(m=>'<div class="module" onclick="window.open(\'/doc.html\',\'_blank\')"><div class="m-icon">'+m.icon+'</div><h3>'+m.name+'</h3><p>'+m.desc+'</p></div>').join('');
+}
+// 初始化语言
+fetch('/api/i18n/current').then(r=>r.json()).then(res=>{ if(res&&res.data&&res.data.language){ var l=res.data.language; if(dict[l]) curLang=l; applyLang(); } }).catch(()=>applyLang());
+</script>
+</body>
+</html>
