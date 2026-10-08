@@ -22,6 +22,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/auth/login",      // 登录
+                        "/api/i18n/**",         // 国际化（语言切换登录前可用）
                         "/health",              // 健康检查（不在 /api 下，保留）
                         "/doc.html",            // Knife4j 文档
                         "/webjars/**",

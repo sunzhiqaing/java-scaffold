@@ -2,10 +2,12 @@ package com.opc.scaffold.controller;
 
 import com.opc.scaffold.common.exception.BizException;
 import com.opc.scaffold.common.result.Result;
+import com.opc.scaffold.util.I18nUtil;
 import com.opc.scaffold.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,16 +31,19 @@ public class AuthController {
     private String expectedPass;
 
     private final JwtUtil jwtUtil;
+    private final MessageSource messageSource;
 
-    public AuthController(JwtUtil jwtUtil) {
+    public AuthController(JwtUtil jwtUtil, MessageSource messageSource) {
         this.jwtUtil = jwtUtil;
+        this.messageSource = messageSource;
     }
 
     @Operation(summary = "登录，返回 JWT token")
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody LoginRequest req) {
         if (!expectedUser.equals(req.username()) || !expectedPass.equals(req.password())) {
-            throw new BizException(401, "用户名或密码错误");
+            throw new BizException(401,
+                    messageSource.getMessage("auth.login.fail", null, I18nUtil.getLocale()));
         }
         String token = jwtUtil.generate(req.username());
         Map<String, Object> m = new LinkedHashMap<>();
